@@ -15,7 +15,7 @@ Edit the example config.yml and em-server.rb to your liking. There are 2 flush p
 ### Server
 Run the server:
 
-    ruby em-server.rb
+    ruby stats.rb
 
 ### Client    
 In your client code:
