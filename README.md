@@ -30,7 +30,7 @@ Example config.yml
 
     # If you change these, you need to delete the capped collections yourself!
     # Average mongo record size is 152 bytes
-    # 10s or 1min data is transient so we'll use MongoDB's capped collections. These collections are fixed in size.
+    # 10s and 1min data is transient so we'll use MongoDB's capped collections. These collections are fixed in size.
     # 5min and 1d data is interesting to preserve long-term. These collections are not capped.
     retentions: 
         - name: stats_per_10s
@@ -141,12 +141,18 @@ That translates to:
 This has been a good tradeoff so far between size-of-file (round robin databases are fixed size) and data we care about. Each "stats" database is about 3.2 megs with these retentions.
 
 
+MongoDB
+-------------
+
+Statd::Mongo will flush and aggregate data to a MongoDB. The average record size is 152 bytes. We use capped collections for the transient data and regular collections for long-term storage. 
+
 Inspiration
 -----------
+[Etsy's][etsy] [blog post][blog post].
 
 StatsD was inspired (heavily) by the project (of the same name) at Flickr. Here's a post where Cal Henderson described it in depth:
 [Counting and timing](http://code.flickr.com/blog/2008/10/27/counting-timing/). Cal re-released the code recently: [Perl StatsD](https://github.com/iamcal/Flickr-StatsD)
-Inspired by [Etsy's][etsy] [blog post][blog post].
+
 
 [graphite]: http://graphite.wikidot.com
 [etsy]: http://www.etsy.com
