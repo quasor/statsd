@@ -50,13 +50,13 @@ module Statsd
         if options[:mongo]
           require 'statsd/mongo'
           # Setup retention store
-          db = Mongo::Connection.new(config['mongo_host']).db(config['mongo_database'])
+          db = ::Mongo::Connection.new(config['mongo_host']).db(config['mongo_database'])
           config['retentions'].each do |retention|
             collection_name = retention['name']
             unless db.collection_names.include?(collection_name)
               db.create_collection(collection_name, :capped => retention['capped'], :size => retention['cap_bytes']) 
             end
-            db.collection(collection_name).ensure_index([['ts', Mongo::ASCENDING]])
+            db.collection(collection_name).ensure_index([['ts', ::Mongo::ASCENDING]])
           end        
           Statsd::Mongo.hostname = config['mongo_host']
           Statsd::Mongo.database = config['mongo_database']
