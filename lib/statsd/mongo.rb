@@ -26,8 +26,6 @@ module Statsd
           value /= flush_interval
           doc = {:stat => key, :value => value, :ts => ts_bucket, :type => "counter" }
           docs.push(doc)
-          message = "stats.#{key} #{value} #{ts}\n"
-          stat_string += message
           counters[key] = 0
 
           num_stats += 1
@@ -75,7 +73,6 @@ module Statsd
             num_stats += 1
           end
         end
-        stat_string += "statsd.numStats #{num_stats} #{ts}\n"
         coll.insert(docs)
         
        aggregate(ts_bucket)
