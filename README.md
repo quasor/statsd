@@ -10,12 +10,55 @@ A network daemon for aggregating statistics (counters and timers), rolling them 
 
 ### Configuration
 
-Edit the example config.yml and em-server.rb to your liking. There are 2 flush protocols: graphite and mongo (experimental).
+Create config.yml to your liking. There are 2 flush protocols: graphite and mongo. The former simple sends to carbon every flush interval. The latter flushes to MongoDB capped collections for 10s and 1min intervals.
+
+Example config.yml
+    ---
+    bind: 127.0.0.1
+    port: 8125
+
+    # Flush interval should be your finest retention in seconds
+    flush_interval: 10        
+
+    # Graphite
+    graphite_host: localhost
+    graphite_port: 2003
+
+    # Mongo
+    mongo_host: localhost
+    mongo_database: statsdb
+
+    # If you change these, you need to delete the capped collections yourself!
+    # Average mongo record size is 152 bytes
+    # 10s or 1min data is transient so we'll use MongoDB's capped collections. These collections are fixed in size.
+    # 5min and 1d data is interesting to preserve long-term. These collections are not capped.
+    retentions: 
+        - name: stats_per_10s
+          seconds: 10
+          capped: true
+          cap_bytes: 268_435_456 # 2**28
+        - name: stats_per_1min
+          seconds: 60
+          capped: true
+          cap_bytes: 1_073_741_824 # 2**30
+        - name: stats_per_5min
+          seconds: 600
+          cap_bytes: 0 
+          capped: false
+        - name: stats_per_day
+          seconds: 86400
+          cap_bytes: 0 
+          capped: false
+
 
 ### Server
 Run the server:
 
-    ruby stats.rb
+Flush to Graphite (default):
+    statsd -c config.yml 
+
+Flush and aggregate to MongoDB:
+    statsd -c config.yml -m
 
 ### Client    
 In your client code:
