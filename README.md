@@ -10,7 +10,7 @@ A network daemon for aggregating statistics (counters and timers), rolling them 
 
 ### Configuration
 
-Create config.yml to your liking. There are 2 flush protocols: graphite and mongo. The former simple sends to carbon every flush interval. The latter flushes to MongoDB capped collections for 10s and 1min intervals.
+Create config.yml to your liking. There are 2 flush protocols: graphite and mongo. The former simply sends to carbon every flush interval. The latter flushes to MongoDB capped collections for 10s and 1min intervals.
 
 Example config.yml
     ---
