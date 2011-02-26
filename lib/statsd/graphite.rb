@@ -27,7 +27,7 @@ module Statsd
     # end
           
     def flush_stats
-      print "#{Time.now} Flushing #{counters.count} counters and #{timers.count} timers to Graphite"
+      print "#{Time.now} Flushing #{counters.count} counters and #{timers.count} timers to Graphite."
       stat_string = ''
       time = ::Benchmark.realtime do
         ts = Time.now.to_i

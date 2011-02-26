@@ -1,14 +1,17 @@
 ---
+bind: 127.0.0.1
+port: 8125
+
 # Flush interval should be your finest retention in seconds
 flush_interval: 10        
 
 # Graphite
 graphite_host: localhost
-graphite_port: 8125
+graphite_port: 2003
 
 # Mongo
-mongo_host: statsd.example.com
-mongo_database:     statsdb
+mongo_host: localhost
+mongo_database: statsdb
 
 # If you change these, you need to delete the capped collections yourself!
 # Average mongo record size is 152 bytes

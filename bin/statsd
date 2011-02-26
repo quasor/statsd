@@ -1,0 +1,56 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH.unshift File.expand_path(File.dirname(__FILE__) + '/../lib')
+require 'yaml'
+require 'optparse'
+
+begin
+  ORIGINAL_ARGV = ARGV.dup
+  
+  options = {:graphite => true, :mongo => false}
+  
+  parser = OptionParser.new do |opts|
+    opts.banner = "Usage: statsd [options]"
+
+    opts.separator ""
+    opts.separator "Options:"
+
+    opts.on("-cCONFIG", "--config-file CONFIG", "Configuration file") do |x|
+     options[:config] = x
+    end
+
+    opts.on("-m", "--mongo", "Flush and aggregate stats to MongoDB") do 
+     options[:mongo] = true
+     options[:graphite] = false
+    end
+
+    opts.on("-g", "--graphite", "Flush stats to Graphite") do 
+     options[:graphite] = true
+    end
+
+    opts.on("-h", "--help", "Show this message") do
+      puts opts
+      exit
+    end
+
+  end
+
+  parser.parse!
+
+  # dispatch
+  if !options[:config] 
+    puts parser.help
+  else
+    require 'statsd'
+    require 'statsd/server'
+    Statsd::Server::Daemon.new.run(options)
+  end
+rescue Exception => e
+  if e.instance_of?(SystemExit)
+    raise
+  else
+    puts 'Uncaught exception'
+    puts e.message
+    puts e.backtrace.join("\n")
+  end
+end
