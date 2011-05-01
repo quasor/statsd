@@ -14,9 +14,9 @@ Gem::Specification.new do |s|
   
   s.required_rubygems_version = ">= 1.3.6"
 
-  s.add_dependency "eventmachine",  "~> 0.12.10"
-  s.add_dependency "mongo",         "~> 1.2.4"
-  s.add_dependency "erubis",        "~> 2.6.6"
+  s.add_dependency "eventmachine",  ">= 0.12.10"
+  s.add_dependency "mongo",         ">= 1.2.4"
+  s.add_dependency "erubis",        ">= 2.6.6"
 
   s.files        = `git ls-files`.split("\n")
   s.executables  = `git ls-files`.split("\n").map{|f| f =~ /^bin\/(.*)/ ? $1 : nil}.compact
