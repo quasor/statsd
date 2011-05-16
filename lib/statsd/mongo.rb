@@ -110,7 +110,7 @@ module Statsd
             when 'timer' 
               mean = stats.collect {|stat| stat['values']['mean'] }.inject( 0 ) { |s,x| s+x } / stats.count
               max  = stats.collect {|stat| stat['values']['max'] }.max
-              min  = stats.collect {|stat| stat['values']['max'] }.min
+              min  = stats.collect {|stat| stat['values']['min'] }.min
               upper_key = stats.first['values'].keys.find{|k| k =~ /upper_/}
               max_at_threshold = stats.collect {|stat| stat['values'][upper_key] }.max
               total_stats = stats.collect {|stat| stat['values']['count'] }.inject( 0 ) { |s,x| s+x }            
