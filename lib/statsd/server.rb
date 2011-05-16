@@ -3,7 +3,7 @@ require 'yaml'
 require 'erb'
 module Statsd
   module Server #< EM::Connection  
-    Version = '0.5.0'  
+    Version = '0.5.2'  
     
     FLUSH_INTERVAL = 10
     COUNTERS = {}

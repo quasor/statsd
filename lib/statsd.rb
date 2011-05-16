@@ -62,9 +62,10 @@ module Statsd
         data.each do |d|
           sock.send(d, 0, host, port)
         end
-      rescue # silent but deadly
+      rescue Exception => e # silent but deadly
+        puts e.message
       ensure
-        sock.close
+        sock.try(:close)
       end
       true
     end

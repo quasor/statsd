@@ -92,9 +92,11 @@ module Statsd
       retentions[1..-1].each_with_index do |retention,index|
         # fine_stats_collection = db.collection(retentions[index]['name'])
         coarse_stats_collection = db.collection(retention['name'])
+        puts "Aggregating #{retention['name']}"
         step = retention['seconds']
         current_coarse_bucket = current_bucket / step * step - step
         previous_coarse_bucket = current_coarse_bucket - step
+        puts "#{Time.at(previous_coarse_bucket)}..#{Time.at(current_coarse_bucket)}"
         # Look up previous bucket
         if coarse_stats_collection.find({:ts => previous_coarse_bucket}).count == 0
           # Aggregate
@@ -102,7 +104,7 @@ module Statsd
           stats_to_aggregate = fine_stats_collection.find(
             {:ts => {"$gte" => previous_coarse_bucket, "$lt" => current_coarse_bucket}})
           rows = stats_to_aggregate.to_a
-          count = stats_to_aggregate.count
+          count = rows.count
           rows.group_by {|r| r["stat"] }.each_pair do |name,stats|
             case stats.first['type']
             when 'timer' 
@@ -132,9 +134,9 @@ module Statsd
             else
               raise "unknown type #{stats.first['type']}"
             end
-            docs.push(doc)
+            docs.push(doc) 
           end
-          coarse_stats_collection.insert(docs)          
+          coarse_stats_collection.insert(docs) unless docs.empty?
         end
       end
       
