@@ -23,7 +23,6 @@ module Statsd
 
         # store counters
         counters.each_pair do |key,value|
-          value /= flush_interval
           doc = {:stat => key, :value => value, :ts => ts_bucket, :type => "counter" }
           docs.push(doc)
           counters[key] = 0

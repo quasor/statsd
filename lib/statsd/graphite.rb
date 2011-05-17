@@ -35,7 +35,6 @@ module Statsd
         
         # store counters
         counters.each_pair do |key,value|
-          value /= flush_interval
           message = "stats.#{key} #{value} #{ts}\n"
           stat_string += message
           counters[key] = 0
