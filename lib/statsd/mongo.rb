@@ -23,7 +23,6 @@ module Statsd
 
         # store counters
         counters.each_pair do |key,value|
-          value /= flush_interval
           doc = {:stat => key, :value => value, :ts => ts_bucket, :type => "counter" }
           docs.push(doc)
           counters[key] = 0
@@ -92,9 +91,11 @@ module Statsd
       retentions[1..-1].each_with_index do |retention,index|
         # fine_stats_collection = db.collection(retentions[index]['name'])
         coarse_stats_collection = db.collection(retention['name'])
+        puts "Aggregating #{retention['name']}"
         step = retention['seconds']
         current_coarse_bucket = current_bucket / step * step - step
         previous_coarse_bucket = current_coarse_bucket - step
+        puts "#{Time.at(previous_coarse_bucket)}..#{Time.at(current_coarse_bucket)}"
         # Look up previous bucket
         if coarse_stats_collection.find({:ts => previous_coarse_bucket}).count == 0
           # Aggregate
@@ -102,13 +103,13 @@ module Statsd
           stats_to_aggregate = fine_stats_collection.find(
             {:ts => {"$gte" => previous_coarse_bucket, "$lt" => current_coarse_bucket}})
           rows = stats_to_aggregate.to_a
-          count = stats_to_aggregate.count
+          count = rows.count
           rows.group_by {|r| r["stat"] }.each_pair do |name,stats|
             case stats.first['type']
             when 'timer' 
               mean = stats.collect {|stat| stat['values']['mean'] }.inject( 0 ) { |s,x| s+x } / stats.count
               max  = stats.collect {|stat| stat['values']['max'] }.max
-              min  = stats.collect {|stat| stat['values']['max'] }.min
+              min  = stats.collect {|stat| stat['values']['min'] }.min
               upper_key = stats.first['values'].keys.find{|k| k =~ /upper_/}
               max_at_threshold = stats.collect {|stat| stat['values'][upper_key] }.max
               total_stats = stats.collect {|stat| stat['values']['count'] }.inject( 0 ) { |s,x| s+x }            
@@ -132,9 +133,9 @@ module Statsd
             else
               raise "unknown type #{stats.first['type']}"
             end
-            docs.push(doc)
+            docs.push(doc) 
           end
-          coarse_stats_collection.insert(docs)          
+          coarse_stats_collection.insert(docs) unless docs.empty?
         end
       end
       
