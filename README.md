@@ -13,6 +13,7 @@ A network daemon for aggregating statistics (counters and timers), rolling them 
 Create config.yml to your liking. There are 2 flush protocols: graphite and mongo. The former simply sends to carbon every flush interval. The latter flushes to MongoDB capped collections for 10s and 1min intervals.
 
 Example config.yml
+
     ---
     bind: 127.0.0.1
     port: 8125
