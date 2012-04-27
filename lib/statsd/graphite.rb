@@ -55,14 +55,14 @@ module Statsd
             max_at_threshold = max
 
             if (count > 1)
+              # average all the timing data
+              sum = values.inject( 0 ) { |s,x| s+x }
+              mean = sum / values.count
+
               # strip off the top 100-threshold
               threshold_index = (((100 - pct_threshold) / 100.0) * count).round
               values = values[0..-threshold_index]
               max_at_threshold = values.last
-
-              # average the remaining timings
-              sum = values.inject( 0 ) { |s,x| s+x }
-              mean = sum / values.count
             end
 
             message = ""
