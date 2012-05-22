@@ -3,13 +3,13 @@ require 'eventmachine'
 module Statsd
   class Graphite < EM::Connection
     attr_accessor :counters, :timers, :flush_interval
-    
+
     def initialize(*args)
       puts args
       super
       # stuff here...
     end
-    
+
     def post_init
       # puts counters.size
       # send_data 'Hello'
@@ -18,21 +18,21 @@ module Statsd
     end
 
     def receive_data(data)
-      p data      
+      p data
     end
 
     # def unbind
     #   p ' connection totally closed'
     #   EventMachine::stop_event_loop
     # end
-          
+
     def flush_stats
       print "#{Time.now} Flushing #{counters.count} counters and #{timers.count} timers to Graphite."
       stat_string = ''
       time = ::Benchmark.realtime do
         ts = Time.now.to_i
-        num_stats = 0        
-        
+        num_stats = 0
+
         # store counters
         counters.each_pair do |key,value|
           message = "stats.#{key} #{value} #{ts}\n"
@@ -41,10 +41,10 @@ module Statsd
 
           num_stats += 1
         end
-    
+
         # store timers
         timers.each_pair do |key, values|
-          if (values.length > 0) 
+          if (values.length > 0)
             pct_threshold = 90
             values.sort!
             count = values.count
@@ -74,16 +74,16 @@ module Statsd
             stat_string += message
 
             timers[key] = []
-                  
+
             num_stats += 1
           end
         end
         stat_string += "statsd.numStats #{num_stats} #{ts}\n"
-        
-      end 
+
+      end
       # send to graphite
       send_data stat_string
-      puts "complete. (#{time.round(3)}s)"
+      puts "complete. (#{(time*100).round()/100.0}s)"
       close_connection_after_writing
     end
   end
