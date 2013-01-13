@@ -111,6 +111,12 @@ Sampling
 
 Tells StatsD that this counter is being sent sampled ever 1/10th of the time.
 
+Gauges
+------
+
+    gaugor:333|g
+
+StatsD now also supports gauges, arbitrary values, which can be recorded.
 
 Guts
 ----

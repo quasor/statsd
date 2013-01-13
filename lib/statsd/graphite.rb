@@ -2,7 +2,7 @@ require 'benchmark'
 require 'eventmachine'
 module Statsd
   class Graphite < EM::Connection
-    attr_accessor :counters, :timers, :flush_interval
+    attr_accessor :counters, :timers, :gauges, :flush_interval
     
     def initialize(*args)
       puts args
@@ -27,12 +27,20 @@ module Statsd
     # end
           
     def flush_stats
-      print "#{Time.now} Flushing #{counters.count} counters and #{timers.count} timers to Graphite."
+      print "#{Time.now} Flushing #{gauges.count} gauges, #{counters.count} counters and #{timers.count} timers to Graphite."
       stat_string = ''
       time = ::Benchmark.realtime do
         ts = Time.now.to_i
         num_stats = 0        
         
+        # store gauges
+        gauges.each_pair do |key,value|
+          message = "stats.gauges.#{key} #{value} #{ts}\n"
+          stat_string += message
+
+          num_stats += 1
+        end
+
         # store counters
         counters.each_pair do |key,value|
           message = "stats.#{key} #{value} #{ts}\n"
