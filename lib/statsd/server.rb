@@ -20,7 +20,6 @@ module Statsd
       gauges = GAUGES.dup
       COUNTERS.clear
       TIMERS.clear
-      GAUGES.clear
       [counters,timers,gauges]
     end
 
@@ -45,7 +44,7 @@ module Statsd
             COUNTERS[key] ||= 0
             COUNTERS[key] += (fields[0].to_i || 1) * (1.0 / sample_rate.to_f)
           elsif (fields[1].strip == "g")
-            GAUGES[key] ||= (fields[0].to_i || 0)
+            GAUGES[key] = (fields[0].to_i || 0)
           else
             print "Invalid statistic #{fields.inspect} received; ignoring"
           end

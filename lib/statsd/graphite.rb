@@ -37,7 +37,6 @@ module Statsd
         gauges.each_pair do |key,value|
           message = "stats.gauges.#{key} #{value} #{ts}\n"
           stat_string += message
-          gauges[key] = 0
 
           num_stats += 1
         end
