@@ -8,6 +8,7 @@ module Statsd
     FLUSH_INTERVAL = 10
     COUNTERS = {}
     TIMERS = {}
+    GAUGES = {}
 
     def post_init
       puts "statsd server started!"
@@ -16,9 +17,11 @@ module Statsd
     def self.get_and_clear_stats!
       counters = COUNTERS.dup
       timers = TIMERS.dup
+      gauges = GAUGES.dup
       COUNTERS.clear
       TIMERS.clear
-      [counters,timers]
+      GAUGES.clear
+      [counters,timers,gauges]
     end
 
     def receive_data(msg)    
@@ -29,15 +32,22 @@ module Statsd
         bits.each do |record|
           sample_rate = 1
           fields = record.split("|")    
+          if fields.nil? || fields.count < 2
+            next
+          end
           if (fields[1].strip == "ms") 
             TIMERS[key] ||= []
             TIMERS[key].push(fields[0].to_i)
-          else
+          elsif (fields[1].strip == "c")
             if (fields[2] && fields[2].match(/^@([\d\.]+)/)) 
               sample_rate = fields[2].match(/^@([\d\.]+)/)[1]
             end
             COUNTERS[key] ||= 0
             COUNTERS[key] += (fields[0].to_i || 1) * (1.0 / sample_rate.to_f)
+          elsif (fields[1].strip == "g")
+            GAUGES[key] ||= (fields[0].to_i || 0)
+          else
+            print "Invalid statistic #{fields.inspect} received; ignoring"
           end
         end
       end
@@ -74,7 +84,7 @@ module Statsd
 
           # Periodically Flush
           EventMachine::add_periodic_timer(config['flush_interval']) do
-            counters,timers = Statsd::Server.get_and_clear_stats!
+            counters,timers,gauges = Statsd::Server.get_and_clear_stats!
 
              # Flush Adapters
             if options[:mongo]
@@ -85,6 +95,7 @@ module Statsd
               EventMachine.connect config['graphite_host'], config['graphite_port'], Statsd::Graphite do |conn|
                 conn.counters = counters
                 conn.timers = timers
+                conn.gauges = gauges
                 conn.flush_interval = config['flush_interval']
                 conn.flush_stats
               end     

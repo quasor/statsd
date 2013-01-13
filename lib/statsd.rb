@@ -37,6 +37,16 @@ module Statsd
       send_stats(stats.map { |s| "#{s}:#{delta}|c" }, sample_rate)
     end
   
+    # +stats+ is a hash
+    def gauge(stats)
+      send_stats(stats.map { |s,val|
+                   if @prefix
+                     s = "#{@prefix}.#{s}"
+                   end
+                   "#{s}:#{val}|g"
+                 })
+    end
+
     private
   
     def send_stats(data, sample_rate = 1)
